@@ -1,53 +1,97 @@
 <?php
-include("connect.php");
-//////
+require "connect.php";
+require_once 'income.php';
+require_once 'expense.php';
 
-/////
-?>
-<?php
+session_start();
 
-if (isset($_POST["income-submit"])) {
-    try {
-        $amount = mysqli_real_escape_string($connect, $_POST["income-amount"]);
-        $description = mysqli_real_escape_string($connect, $_POST["income-description"]);
-        $date = empty($_POST["income-date"]) ? date('y-m-d') : mysqli_real_escape_string($connect, $_POST["income-date"]);
-        $sql_insert = "INSERT INTO income (amount , description,  date) VALUES({$amount}, '{$description}', '{$date}')";
 
-        mysqli_query($connect, $sql_insert);
-    } catch (mysqli_sql_exception $e) {
-        echo $e->getMessage();
+$database = new Database();
+
+$db = $database->connect();
+
+$income = new Income($db);
+$expense = new Expense($db);
+
+if (isset($_POST['submit_transaction'])) {
+    if ($_POST['type'] == 'income') {
+
+        $user_id = $_SESSION['user_id'];
+        $amount = $_POST['amount'];
+        $description = $_POST['description'];
+        $date = $_POST['date'];
+        $category = $_POST['category'];
+
+        if ($income->create($user_id, $amount, $description, $date, $category)) {
+            echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'Transaction Added Successfully! 🎉',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                    });</script>";
+        }
+    } else if ($_POST['type'] == 'expense') {
+
+        $user_id = $_SESSION['user_id'];
+        $amount = $_POST['amount'];
+        $description = $_POST['description'];
+        $date = $_POST['date'];
+        $category = $_POST['category'];
+
+        if ($expense->create($user_id, $amount, $description, $date, $category)) {
+            echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'Transaction Added Successfully! 🎉',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                    });</script>";
+        }
     }
 }
-if (isset($_POST["expense-submit"])) {
-    try {
-        $amount = mysqli_real_escape_string($connect, $_POST["expense-amount"]);
-        $description = mysqli_real_escape_string($connect, $_POST["expense-description"]);
-        $date = empty($_POST["expense-date"]) ? date('y-m-d') : mysqli_real_escape_string($connect, $_POST["expense-date"]);
-        $sql_insert = "INSERT INTO expense (amount , description,  date) VALUES({$amount}, '{$description}', '{$date}')";
 
-        mysqli_query($connect, $sql_insert);
-    } catch (mysqli_sql_exception $e) {
-        echo $e->getMessage();
-    }
-}
+
+
+
+
+
+
+
+
+
 // income total amount
 $income_sum = "SELECT sum(amount) AS total_income FROM income";
 
 // $result_income = mysqli_query($connect, $income_sum);
-$income_total = 0;
-if ($result_income) {
-    $row = mysqli_fetch_assoc($result_income);
-    $income_total = $row['total_income'];
-}
+// $income_total = 0;
+// if ($result_income) {
+//     $row = mysqli_fetch_assoc($result_income);
+//     $income_total = $row['total_income'];
+// }
 // expense total amount
 $expense_sum = "SELECT sum(amount) AS total_expense FROM expense";
 
 // $result_expense = mysqli_query($connect, $expense_sum);
-$expense_total = 0;
-if ($result_expense) {
-    $row = mysqli_fetch_assoc($result_expense);
-    $expense_total = $row['total_expense'];
-}
+// $expense_total = 0;
+// if ($result_expense) {
+//     $row = mysqli_fetch_assoc($result_expense);
+//     $expense_total = $row['total_expense'];
+// }
 
 // update infos of income
 if (!empty($_POST['income-new-submit'])) {
@@ -92,299 +136,408 @@ if (!empty($_POST['expense-delete'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Smart Wallet</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://kit.fontawesome.com/559afa4763.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <title>Smart Wallet - Dashboard</title>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        body { 
+            background: radial-gradient(circle at top left, #f3f4f6, #d1d5db);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm transition-all duration-300;
+        }
+        .glass-card {
+             @apply glass-panel rounded-2xl p-6 hover:shadow-md hover:bg-white/80;
+        }
+
+        /* Input Styling */
+        .form-input {
+            @apply w-full rounded-xl border border-gray-200 bg-white/60 px-4 py-3 text-sm 
+            focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all placeholder-gray-400 font-medium;
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-pop { animation: popIn 0.2s ease-out forwards; }
+    </style>
 </head>
-<style type="text/tailwindcss">
-    @theme {
-        --color-glass-border: rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Background Blobs Animation */
-    @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-    }
-    .animate-blob {
-        animation: blob 7s infinite;
-    }
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-    .animation-delay-4000 {
-        animation-delay: 4s;
-    }
 
-    /* Glows */
-    .input-glow:focus {
-        box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
-    }
-    
-    /* Scrollbar styling */
-    .custom-scroll::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 10px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgba(255,255,255,0.4);
-    }
-</style>
+<body class="font-sans text-gray-800 antialiased">
 
-<body class="bg-[#0f172a] text-white font-sans relative overflow-x-hidden min-h-screen">
-
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div class="absolute top-0 left-10 w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob"></div>
-        <div class="absolute top-10 right-10 w-96 h-96 bg-violet-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-fuchsia-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 animate-blob animation-delay-4000"></div>
-    </div>
-
-    <div class="relative z-10 flex flex-col min-h-screen backdrop-blur-[2px]">
-        
-        <header class="bg-white/5 border-b border-white/10 backdrop-blur-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-                    <i class="fa-solid fa-wallet mr-2"></i>Smart Wallet
+    <nav class="sticky top-4 z-40 px-4 mb-8">
+        <div class="glass-panel max-w-7xl mx-auto px-6 py-4 flex justify-between items-center rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-wallet text-lg"></i>
                 </div>
+                <span class="text-xl font-bold tracking-tight text-gray-900">Smart Wallet</span>
+            </div>
+
+            <button onclick="openModal()"
+                class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>New Transaction</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pb-12 space-y-8">
+
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    Welcome back, <span class="text-blue-600"><?php echo $_SESSION['user_name'] ?></span>! 👋
+                </h1>
+                <p class="text-gray-500 mt-1 font-medium">Overview of your financial status.</p>
+            </div>
+            <div class="glass-panel px-4 py-2 rounded-xl text-sm font-medium text-gray-600 flex items-center gap-2">
+                <i class="fa-regular fa-calendar"></i> Today
             </div>
         </header>
 
-        <section class="max-w-7xl mx-auto px-6 py-8 w-full flex-grow flex flex-col gap-8">
-            
-            <div class="flex flex-wrap gap-5 justify-between items-end">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card flex flex-col justify-between h-40 group cursor-default">
+                <div class="flex justify-between items-start">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i class="fa-solid fa-scale-balanced text-xl"></i></div>
+                    <span class="text-xs font-semibold bg-blue-50 text-blue-600 px-2 py-1 rounded-md">Net</span>
+                </div>
                 <div>
-                    <h1 class="text-4xl font-bold text-white mb-1">Dashboard</h1>
-                    <p class="text-sm font-sans text-gray-400">Overview of your financial status.</p>
-                </div>
-                <div class="flex gap-3">
-                    <button id="income-btn" class="cursor-pointer px-6 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all active:scale-95">
-                        <i class="fa-solid fa-plus mr-2"></i> Add Income
-                    </button>
-                    <button id="expense-btn" class="cursor-pointer px-6 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-400 hover:to-purple-500 shadow-[0_0_15px_rgba(192,38,211,0.3)] hover:shadow-[0_0_20px_rgba(192,38,211,0.5)] transition-all active:scale-95">
-                        <i class="fa-solid fa-minus mr-2"></i> Add Expense
-                    </button>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Balance</p>
+                    <h2 class="text-4xl font-bold text-gray-900 tracking-tight">$ 25,890.00</h2>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="relative p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg hover:bg-white/10 transition-all duration-300 group overflow-hidden">
-                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-xl group-hover:bg-cyan-500/30 transition-all"></div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-cyan-500/10 rounded-xl text-cyan-400">
-                            <i class="fa-solid fa-arrow-trend-up text-xl"></i>
-                        </div>
-                        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Income Balance</span>
-                    </div>
-                    <p class="text-3xl font-bold text-white">$ <?php echo $income_total + 0 ?></p>
+            <div class="glass-card flex flex-col justify-between h-40 group cursor-default">
+                <div class="flex justify-between items-start">
+                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fa-solid fa-arrow-trend-up text-xl"></i></div>
                 </div>
-
-                <div class="relative p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg hover:bg-white/10 transition-all duration-300 group overflow-hidden">
-                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-fuchsia-500/20 rounded-full blur-xl group-hover:bg-fuchsia-500/30 transition-all"></div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-fuchsia-500/10 rounded-xl text-fuchsia-400">
-                            <i class="fa-solid fa-arrow-trend-down text-xl"></i>
-                        </div>
-                        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Expense Balance</span>
-                    </div>
-                    <p class="text-3xl font-bold text-white">$ <?php echo $expense_total + 0 ?></p>
-                </div>
-
-                <div class="relative p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg hover:bg-white/10 transition-all duration-300 group overflow-hidden">
-                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/30 transition-all"></div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                            <i class="fa-solid fa-wallet text-xl"></i>
-                        </div>
-                        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Balance</span>
-                    </div>
-                    <p class="text-3xl font-bold text-white">$ <?php echo $income_total - $expense_total + 0 ?></p>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Income</p>
+                    <h2 class="text-3xl font-bold text-emerald-600 tracking-tight">+$ <?php echo $income->sum($_SESSION['user_id'])?> </h2>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                <div class="flex flex-col gap-4">
-                    <h3 class="text-xl font-semibold text-cyan-400 pl-2">Recent Incomes</h3>
-                    <div id="incomes" class="w-full custom-scroll overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md h-96 relative">
-                        <table class="w-full text-left">
-                            <thead class="sticky top-0 bg-slate-900/90 backdrop-blur-sm z-10 border-b border-white/10">
-                                <tr>
-                                    <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                <?php
-                                $incomes = "SELECT * FROM income WHERE MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE)";
-                                $the_result = mysqli_query($connect, $incomes);
-                                if (mysqli_num_rows($the_result) > 0) {
-                                    while ($row = mysqli_fetch_assoc($the_result)) {
-                                        echo "
-                                            <tr data-id=" . $row['id'] . " class='group hover:bg-white/5 transition-colors duration-200 element'>
-                                                <td class='px-6 py-4 whitespace-nowrap'>
-                                                    <span class='text-cyan-400 font-bold text-lg'>$ " . $row['amount'] . "</span>
-                                                    <div class='text-xs text-gray-500 mt-0.5'>" . (isset($row['description']) ? $row['description'] : '') . "</div>
-                                                </td>
-                                                <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
-                                                    <div class='flex justify-between items-center w-full'>
-                                                        <span>" . $row['date'] . "</span>
-                                                        <div class='flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity'>
-                                                            <i class='fa-solid fa-pen edit cursor-pointer text-blue-400 hover:text-blue-300'></i>
-                                                            <i class='fa-solid fa-trash bin cursor-pointer text-red-400 hover:text-red-300'></i>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ";
-                                    }
-                                } else {
-                                    echo "<div class='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-sm flex flex-col items-center gap-2'>
-                                            <i class='fa-regular fa-folder-open text-2xl'></i>
-                                            <span>No incomes found</span>
-                                          </div>";
-                                }
-                                ?>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="glass-card flex flex-col justify-between h-40 group cursor-default">
+                <div class="flex justify-between items-start">
+                    <div class="p-2 bg-rose-50 text-rose-600 rounded-lg"><i class="fa-solid fa-arrow-trend-down text-xl"></i></div>
                 </div>
-
-                <div class="flex flex-col gap-4">
-                    <h3 class="text-xl font-semibold text-fuchsia-400 pl-2">Recent Expenses</h3>
-                    <div id="expenses" class="w-full custom-scroll overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md h-96 relative">
-                        <table class="w-full text-left">
-                            <thead class="sticky top-0 bg-slate-900/90 backdrop-blur-sm z-10 border-b border-white/10">
-                                <tr>
-                                    <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/5">
-                                <?php
-                                $expenses = "SELECT * FROM expense WHERE MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE)";
-                                $the_result = mysqli_query($connect, $expenses);
-                                if (mysqli_num_rows($the_result) > 0) {
-                                    while ($row = mysqli_fetch_assoc($the_result)) {
-                                        echo "
-                                            <tr data-id=" . $row['id'] . " class='group hover:bg-white/5 transition-colors duration-200 element'>
-                                                <td class='px-6 py-4 whitespace-nowrap'>
-                                                    <span class='text-fuchsia-400 font-bold text-lg'>$ " . $row['amount'] . "</span>
-                                                    <div class='text-xs text-gray-500 mt-0.5'>" . (isset($row['description']) ? $row['description'] : '') . "</div>
-                                                </td>
-                                                <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
-                                                    <div class='flex justify-between items-center w-full'>
-                                                        <span class='dates'>" . $row['date'] . "</span>
-                                                        <div class='flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity'>
-                                                            <i class='fa-solid fa-pen edit cursor-pointer text-blue-400 hover:text-blue-300'></i>
-                                                            <i class='fa-solid fa-trash bin cursor-pointer text-red-400 hover:text-red-300'></i>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ";
-                                    }
-                                } else {
-                                    echo "<div class='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-sm flex flex-col items-center gap-2'>
-                                            <i class='fa-regular fa-folder-open text-2xl'></i>
-                                            <span>No expenses found</span>
-                                          </div>";
-                                }
-                                ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <section class="max-w-7xl mx-auto px-6 pb-12 w-full">
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-                <h3 class="text-xl font-semibold text-white mb-6 pl-2 border-l-4 border-cyan-500">Statistics Overview</h3>
-                <div class="h-80 w-full">
-                    <canvas id="myChart"></canvas>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Expense</p>
+                    <h2 class="text-3xl font-bold text-rose-600 tracking-tight">-$ <?php echo $expense->sum($_SESSION['user_id'])?></h2>
                 </div>
             </div>
         </section>
 
-    </div>
+        <section class="glass-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-gray-800">Recent Transactions</h3>
+                <a href="#" class="text-sm text-blue-600 font-semibold hover:text-blue-800 transition-colors">See All</a>
+            </div>
 
-    <div class="income-form-bg hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center">
-        <form action="index.php" method="post" class="relative bg-[#0f172a] border border-white/10 shadow-2xl shadow-cyan-500/10 rounded-2xl px-8 py-8 flex flex-col gap-5 w-full max-w-md animate-form">
-            <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 mb-2">Add Income</h2>
-            
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Amount</label>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-xs text-gray-500 border-b border-gray-200">
+                            <th class="py-3 font-semibold uppercase pl-2">Description</th>
+                            <th class="py-3 font-semibold uppercase">Category</th>
+                            <th class="py-3 font-semibold uppercase">Date</th>
+                            <th class="py-3 font-semibold uppercase">Type</th>
+                            <th class="py-3 font-semibold uppercase text-right pr-2">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-gray-100">
+
+                        <tr class='group hover:bg-gray-50/50 transition-colors'>
+                            <td class='py-4'>
+                                <div class='flex items-center gap-3'>
+                                    <div class='w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs'>
+                                        <i class='fa-solid fa-arrow-down'></i>
+                                    </div>
+                                    <span class='font-medium text-gray-700'>Freelance Project</span>
+                                </div>
+                            </td>
+                            <td class='py-4'>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                    💻 Freelance
+                                </span>
+                            </td>
+                            <td class='py-4 text-gray-500'>2024-05-15</td>
+                            <td class='py-4'>
+                                <span class='text-xs font-bold px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 uppercase tracking-wide border border-emerald-100'>
+                                    Income
+                                </span>
+                            </td>
+                            <td class='py-4 text-right font-bold text-emerald-600'>
+                                + $ 1,200.00
+                            </td>
+                        </tr>
+
+                        <tr class='group hover:bg-gray-50/50 transition-colors'>
+                            <td class='py-4'>
+                                <div class='flex items-center gap-3'>
+                                    <div class='w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs'>
+                                        <i class='fa-solid fa-arrow-up'></i>
+                                    </div>
+                                    <span class='font-medium text-gray-700'>Grocery Shopping</span>
+                                </div>
+                            </td>
+                            <td class='py-4'>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                    🍔 Food
+                                </span>
+                            </td>
+                            <td class='py-4 text-gray-500'>2024-05-12</td>
+                            <td class='py-4'>
+                                <span class='text-xs font-bold px-2 py-1 rounded-md bg-rose-50 text-rose-600 uppercase tracking-wide border border-rose-100'>
+                                    Expense
+                                </span>
+                            </td>
+                            <td class='py-4 text-right font-bold text-rose-600'>
+                                - $ 150.00
+                            </td>
+                        </tr>
+
+                        <tr class='group hover:bg-gray-50/50 transition-colors'>
+                            <td class='py-4'>
+                                <div class='flex items-center gap-3'>
+                                    <div class='w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs'>
+                                        <i class='fa-solid fa-arrow-down'></i>
+                                    </div>
+                                    <span class='font-medium text-gray-700'>Uber Ride</span>
+                                </div>
+                            </td>
+                            <td class='py-4'>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                    🚗 Transport
+                                </span>
+                            </td>
+                            <td class='py-4 text-gray-500'>2024-05-10</td>
+                            <td class='py-4'>
+                                <span class='text-xs font-bold px-2 py-1 rounded-md bg-rose-50 text-rose-600 uppercase tracking-wide border border-rose-100'>
+                                    Expense
+                                </span>
+                            </td>
+                            <td class='py-4 text-right font-bold text-rose-600'>
+                                - $ 25.00
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="glass-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-lg text-gray-800">Analytics Overview</h3>
+                <span class="text-sm text-gray-400">Monthly Trend</span>
+            </div>
+            <div class="h-80 w-full relative">
+                <canvas id="chart"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
+
+        <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="#">
+
+            <button type="button" onclick="closeModal()"
+                class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="mb-8">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-900">Add Income</h2>
+                <p id="modalSub" class="text-gray-500 text-sm mt-1">Fill in the details below.</p>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Transaction Type</label>
                 <div class="relative">
-                    <i class="fa-solid fa-dollar-sign absolute left-4 top-3.5 text-gray-500"></i>
-                    <input required type="text" name="income-amount" placeholder="0.00" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all">
+                    <select id="type" name="type" onchange="switchType()" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <div class="absolute right-4 top-3.5 pointer-events-none text-gray-500">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Description</label>
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Category</label>
                 <div class="relative">
-                    <i class="fa-solid fa-tag absolute left-4 top-3.5 text-gray-500"></i>
-                    <input required type="text" name="income-description" placeholder="e.g. Salary, Freelance" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all">
+                    <select name="category" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
+                        <option value="food">🍔 Food & Dining</option>
+                        <option value="shopping">🛍️ Shopping</option>
+                        <option value="transport">🚗 Transport</option>
+                        <option value="entertainment">🎬 Entertainment</option>
+                        <option value="bills">💡 Bills & Utilities</option>
+                        <option value="salary">💰 Salary</option>
+                        <option value="freelance">💻 Freelance</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                    <div class="absolute right-4 top-3.5 pointer-events-none text-gray-500">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Date</label>
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Amount</label>
                 <div class="relative">
-                    <input type="date" name="income-date" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 px-4 text-gray-400 focus:outline-none focus:border-cyan-400 transition-all">
+                    <span class="absolute left-4 top-3 text-gray-400 font-bold">$</span>
+                    <input type="number" name="amount" step="0.01" placeholder="0.00" class="form-input pl-8 font-bold text-lg text-gray-800" required>
                 </div>
             </div>
 
-            <input type="submit" name="income-submit" value="Save Income" class="mt-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all active:scale-95">
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Description</label>
+                <input type="text" name="description" placeholder="e.g. Weekly Groceries" class="form-input" required>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Date</label>
+                <input type="date" name="date" class="form-input text-gray-600">
+            </div>
+
+            <button type="submit" name="submit_transaction" id="submitBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer">
+                <span>Add Income</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
         </form>
     </div>
 
-    <div class="expense-form-bg hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center">
-        <form action="index.php" method="post" class="relative bg-[#0f172a] border border-white/10 shadow-2xl shadow-fuchsia-500/10 rounded-2xl px-8 py-8 flex flex-col gap-5 w-full max-w-md animate-form">
-            <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-400 mb-2">Add Expense</h2>
-            
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Amount</label>
-                <div class="relative">
-                    <i class="fa-solid fa-dollar-sign absolute left-4 top-3.5 text-gray-500"></i>
-                    <input required type="text" name="expense-amount" placeholder="0.00" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-fuchsia-400 focus:shadow-[0_0_15px_rgba(192,38,211,0.2)] transition-all">
-                </div>
-            </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        const modal = document.getElementById('modal');
+        const typeSelect = document.getElementById('type');
+        const title = document.getElementById('modalTitle');
+        const sub = document.getElementById('modalSub');
+        const btn = document.getElementById('submitBtn');
+        const btnText = btn.querySelector('span');
 
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Description</label>
-                <div class="relative">
-                    <i class="fa-solid fa-tag absolute left-4 top-3.5 text-gray-500"></i>
-                    <input required type="text" name="expense-description" placeholder="e.g. Food, Rent" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-fuchsia-400 focus:shadow-[0_0_15px_rgba(192,38,211,0.2)] transition-all">
-                </div>
-            </div>
+        function openModal() {
+            modal.classList.remove('hidden');
+            const dateInput = document.querySelector('input[type="date"]');
+            if (!dateInput.value) dateInput.valueAsDate = new Date();
+        }
 
-            <div class="flex flex-col gap-2">
-                <label class="text-gray-400 text-sm ml-1">Date</label>
-                <div class="relative">
-                    <input type="date" name="expense-date" class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 px-4 text-gray-400 focus:outline-none focus:border-fuchsia-400 transition-all">
-                </div>
-            </div>
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
 
-            <input type="submit" name="expense-submit" value="Save Expense" class="mt-4 cursor-pointer bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-bold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(192,38,211,0.4)] transition-all active:scale-95">
-        </form>
-    </div>
+        function switchType() {
+            const isIncome = typeSelect.value === 'income';
+            title.innerText = isIncome ? 'Add Income' : 'Add Expense';
+            sub.innerText = isIncome ? 'Track your earnings.' : 'Track your spending.';
+            btnText.innerText = isIncome ? 'Add Income' : 'Add Expense';
+            title.className = `text-2xl font-bold ${isIncome ? 'text-blue-600' : 'text-rose-600'}`;
+            btn.className = `w-full font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer text-white ${isIncome ? 'bg-blue-600 hover:bg-blue-700' : 'bg-rose-600 hover:bg-rose-700'}`;
+        }
+
+        // Chart Config
+        const ctx = document.getElementById('chart').getContext('2d');
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+        gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Balance',
+                    data: [12000, 19000, 15000, 22000, 18000, 24847],
+                    borderColor: '#2563eb',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            },
+                            color: '#9ca3af'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            borderDash: [4, 4],
+                            color: '#e5e7eb'
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            },
+                            color: '#9ca3af',
+                            callback: (value) => '$' + value / 1000 + 'k'
+                        },
+                        beginAtZero: true
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    </script>
 </body>
-<script src="script.js"></script>
 
 </html>
-<?php
-mysqli_close($connect);
-?>

@@ -1,5 +1,6 @@
 <?php
-class Income {
+class Expense
+{
     private $conn;
 
     private $amount;
@@ -8,12 +9,14 @@ class Income {
     private $category;
     private $user_id;
 
-    public function __construct($db){
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    public function create($user_id , $amount , $description , $date , $category){
-        $sql = "INSERT INTO income(user_id , amount , description , date , category) VALUES(:user_id , :amount , :description , :date , :category)";
+    public function create($user_id, $amount, $description, $date, $category)
+    {
+        $sql = "INSERT INTO expense(user_id , amount , description , date , category) VALUES(:user_id , :amount , :description , :date , :category)";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -27,20 +30,7 @@ class Income {
         return true;
     }
 
-    public function getAll($user_id){
-        $sql = "SELECT * FROM income WHERE user_id = :user_id";
-
-        $stmt = $this->conn->prepare($sql);
-
-        $stmt->bindParam('user_id', $user_id);
-        $stmt->execute();
-
-        if($stmt->rowCount() > 0){
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }else{
-            return [];
-        }
-    }
+    public function getAll() {}
 
     public function sum($user_id){
         $sql = "SELECT sum(amount) as sum FROM income WHERE user_id = :user_id";
@@ -55,20 +45,11 @@ class Income {
         return $result['sum'] ?? 0;
     }
 
-    public function getById(){
+    public function getById() {}
 
-    }
+    public function getByCategory() {}
 
-    public function getByCategory(){
+    public function update() {}
 
-    }
-
-    public function update(){
-
-    }
-
-    public function delete(){
-
-    }
+    public function delete() {}
 }
-?>

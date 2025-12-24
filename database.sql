@@ -34,4 +34,6 @@ CREATE TABLE users(
 
 SELECT * FROM users
 
-TRUNCATE users
+SELECT * FROM income
+
+TRUNCATE income
