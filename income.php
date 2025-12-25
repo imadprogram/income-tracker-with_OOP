@@ -59,8 +59,16 @@ class Income {
 
     }
 
-    public function getByCategory(){
+    public function getByCategory($user_id , $category) {
+        $sql = "SELECT * FROM income WHERE user_id = :user_id AND category = :category";
 
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('category', $category);
+        $stmt->bindParam('user_id', $user_id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function update(){

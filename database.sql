@@ -34,6 +34,15 @@ CREATE TABLE users(
 
 SELECT * FROM users
 
-SELECT * FROM income
+SELECT * FROM expense
 
 TRUNCATE income
+
+SELECT 
+        income.amount , 
+        income.category ,
+        expense.amount ,
+        expense.category
+FROM income
+INNER JOIN expense
+ON income.category = 'transport' 

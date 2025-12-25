@@ -14,8 +14,7 @@ class Expense
         $this->conn = $db;
     }
 
-    public function create($user_id, $amount, $description, $date, $category)
-    {
+    public function create($user_id, $amount, $description, $date, $category){
         $sql = "INSERT INTO expense(user_id , amount , description , date , category) VALUES(:user_id , :amount , :description , :date , :category)";
 
         $stmt = $this->conn->prepare($sql);
@@ -30,10 +29,23 @@ class Expense
         return true;
     }
 
-    public function getAll() {}
+    public function getAll($user_id) {
+        $sql = "SELECT * FROM expense WHERE user_id = :user_id";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('user_id', $user_id);
+        $stmt->execute();
+
+        if($stmt->rowCount() > 0){
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }else{
+            return [];
+        }
+    }
 
     public function sum($user_id){
-        $sql = "SELECT sum(amount) as sum FROM income WHERE user_id = :user_id";
+        $sql = "SELECT sum(amount) as sum FROM expense WHERE user_id = :user_id";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -45,11 +57,27 @@ class Expense
         return $result['sum'] ?? 0;
     }
 
-    public function getById() {}
+    public function getById() {
 
-    public function getByCategory() {}
+    }
 
-    public function update() {}
+    public function getByCategory($user_id , $category) {
+        $sql = "SELECT * FROM expense WHERE user_id = :user_id AND category = :category";
 
-    public function delete() {}
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('category', $category);
+        $stmt->bindParam('user_id', $user_id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function update() {
+
+    }
+
+    public function delete() {
+
+    }
 }
