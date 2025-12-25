@@ -34,15 +34,20 @@ CREATE TABLE users(
 
 SELECT * FROM users
 
-SELECT * FROM expense
+SELECT * FROM income
 
-TRUNCATE income
+TRUNCATE expense
 
-SELECT 
-        income.amount , 
-        income.category ,
-        expense.amount ,
-        expense.category
-FROM income
-INNER JOIN expense
-ON income.category = 'transport' 
+CREATE TABLE category(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    type VARCHAR(50) NOT NULL
+)
+
+ALTER TABLE expense DROP COLUMN category
+
+ALTER TABLE expense ADD COLUMN category_id INT
+
+ALTER TABLE expense ADD FOREIGN KEY (category_id) REFERENCES category(id)
+
+SELECT * FROM category
