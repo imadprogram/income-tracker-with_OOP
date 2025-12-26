@@ -529,7 +529,7 @@ if(isset($_POST['delete_expense'])){
 
                                                         <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
                                                             <form action='dashboard.php' method='POST'>
-                                                                <input type='hidden' name='".$row['id']."' value='1'>
+                                                                <input type='hidden' name='id' value='".$row['id']."'>
                                                                 <button name='delete_expense' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
                                                                     <i class='fa-solid fa-trash text-xs'></i>
                                                                 </button>
