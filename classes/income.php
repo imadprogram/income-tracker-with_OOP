@@ -59,6 +59,10 @@ class Income {
         return $result['sum'] ?? 0;
     }
 
+    public function getById(){
+
+    }
+
     public function getByCategory($user_id , $category) {
         $sql = "SELECT income.* , category.name as category_name
                 FROM income 
