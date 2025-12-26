@@ -7,7 +7,15 @@ class Category {
     }
 
     public function create($name , $type){
-        
+        $sql = "INSERT INTO category(name , type) VALUES(:name , :type)";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('name', $name);
+        $stmt->bindParam('type', $type);
+        $stmt->execute();
+
+        return true;
     }
 
     public function getAllCategories($type){

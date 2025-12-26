@@ -74,48 +74,22 @@ $income_categories = $all_categories->getAllCategories('income');
 $expense_categories = $all_categories->getAllCategories('expense');
 $categories = $all_categories->getAllCategories('all');
 
+// ADD NEW CATEGORY
+
+if(isset($_POST['submit_category'])){
+    $type = $_POST['type'];
+    $new_cat = $_POST['new_category'];
+
+    if($all_categories->create($new_cat , $type)){
+        echo "the ". $type . "category has added !";
+    }
+}
 
 
 
-// }
-
-// // update infos of income
-// if (!empty($_POST['income-new-submit'])) {
-//     $amount = $_POST['income-new-amount'];
-//     $description = $_POST['income-new-description'];
-//     $date = $_POST['income-new-date'];
-//     $id = $_POST['id'];
-//     $sql = "UPDATE income SET amount = $amount WHERE id = $id";
-
-//     mysqli_query($connect, $sql);
-// }
-// // update infos of expense
-// if (!empty($_POST['expense-new-submit'])) {
-//     $amount = $_POST['expense-new-amount'];
-//     $description = $_POST['expense-new-description'];
-//     $date = $_POST['expense-new-date'];
-//     $id = $_POST['id'];
-//     $sql = "UPDATE expense SET amount = $amount WHERE id = $id";
-
-//     mysqli_query($connect, $sql);
-// }
-
-// // delete infos of income
-// if (!empty($_POST['income-delete'])) {
-//     $id = $_POST['id'];
-//     $sql = "DELETE FROM income WHERE id = $id";
-
-//     mysqli_query($connect, $sql);
-// }
-// // delete infos of expense
-// if (!empty($_POST['expense-delete'])) {
-//     $id = $_POST['id'];
-//     $sql = "DELETE FROM expense WHERE id = $id";
-
-//     mysqli_query($connect, $sql);
-// }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -195,6 +169,10 @@ $categories = $all_categories->getAllCategories('all');
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span>New Transaction</span>
             </button>
+
+            <button class='add-category rounded-lg shadow-xl px-4 py-2'>
+                add category
+            </button>
         </div>
     </nav>
 
@@ -261,7 +239,7 @@ $categories = $all_categories->getAllCategories('all');
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white/50">
                         <h3 class="font-bold text-emerald-700 text-sm uppercase tracking-wide">Income List</h3>
 
-                        <form action="" method="GET" class="flex items-center gap-2">
+                        <form action="dashboard.php" method="GET" class="flex items-center gap-2">
                             <div class="relative">
                                 <select name="filter_income" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
@@ -387,14 +365,14 @@ $categories = $all_categories->getAllCategories('all');
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white/50">
                         <h3 class="font-bold text-rose-700 text-sm uppercase tracking-wide">Expense List</h3>
 
-                        <form action="" method="GET" class="flex items-center gap-2">
+                        <form action="dashboard.php" method="GET" class="flex items-center gap-2">
                             <div class="relative">
                                 <select name="filter_expense" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-rose-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
                                     <?php
-                                        foreach ($expense_categories as $cat) {
-                                            echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
-                                        }
+                                    foreach ($expense_categories as $cat) {
+                                        echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
+                                    }
                                     ?>
                                     <!-- <option value="food">🍔 Food & Dining</option>
                                     <option value="shopping">🛍️ Shopping</option>
@@ -510,7 +488,7 @@ $categories = $all_categories->getAllCategories('all');
     </main>
 
     <div id="modal" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
-        <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="#">
+        <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="dashboard.php">
             <button type="button" onclick="closeModal()" class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
@@ -535,9 +513,9 @@ $categories = $all_categories->getAllCategories('all');
                 <div class="relative">
                     <select name="category" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
                         <?php
-                            foreach($categories as $cat){
-                                echo "<option value=".$cat['id'].">".$cat['name']."</option>";
-                            }
+                        foreach ($categories as $cat) {
+                            echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
+                        }
                         ?>
                         <!-- <option value="food">🍔 Food & Dining</option>
                         <option value="shopping">🛍️ Shopping</option>
@@ -569,6 +547,41 @@ $categories = $all_categories->getAllCategories('all');
         </form>
     </div>
 
+    <div class="catModal   fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
+        <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="dashboard.php">
+            <button type="button" id="close_it" class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-8">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-900">Add Category</h2>
+                <p id="modalSub" class="text-gray-500 text-sm mt-1">Fill in the details below.</p>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Type</label>
+                <div class="relative">
+                    <select id="type" name="type" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <div class="absolute right-4 top-3.5 pointer-events-none text-gray-500"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Category Name</label>
+                <div class="relative">
+                    <input required type="text" name="new_category" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
+                </div>
+            </div>
+
+
+            <button type="submit" name="submit_category" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer">
+                <span>Add Category</span><i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </form>
+    </div>
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         const modal = document.getElementById('modal');
@@ -577,6 +590,18 @@ $categories = $all_categories->getAllCategories('all');
         const sub = document.getElementById('modalSub');
         const btn = document.getElementById('submitBtn');
         const btnText = btn.querySelector('span');
+
+        //////
+        const category_btn = document.querySelector('.add-category');
+        const close_category = document.querySelector('#close_it');
+
+        category_btn.addEventListener('click', () => {
+            document.querySelector('.catModal').classList.remove('hidden')
+        })
+        close_category.addEventListener('click',()=>{
+            document.querySelector('.catModal').classList.add('hidden')
+        })
+        /////
 
         function openModal() {
             modal.classList.remove('hidden');
