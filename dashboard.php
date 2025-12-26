@@ -76,12 +76,12 @@ $categories = $all_categories->getAllCategories('all');
 
 // ADD NEW CATEGORY
 
-if(isset($_POST['submit_category'])){
+if (isset($_POST['submit_category'])) {
     $type = $_POST['type'];
     $new_cat = $_POST['new_category'];
 
-    if($all_categories->create($new_cat , $type)){
-        echo "the ". $type . "category has added !";
+    if ($all_categories->create($new_cat, $type)) {
+        echo "the " . $type . "category has added !";
     }
 }
 
@@ -164,15 +164,17 @@ if(isset($_POST['submit_category'])){
                 <span class="text-xl font-bold tracking-tight text-gray-900">Smart Wallet</span>
             </div>
 
-            <button onclick="openModal()"
-                class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>New Transaction</span>
-            </button>
+            <div class="flex gap-10">
+                <button onclick="openModal()"
+                    class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>New Transaction</span>
+                </button>
 
-            <button class='add-category rounded-lg shadow-xl px-4 py-2'>
-                add category
-            </button>
+                <button class='add-category rounded-lg shadow-xl px-4 py-2 bg-gray-400'>
+                    add category
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -598,7 +600,7 @@ if(isset($_POST['submit_category'])){
         category_btn.addEventListener('click', () => {
             document.querySelector('.catModal').classList.remove('hidden')
         })
-        close_category.addEventListener('click',()=>{
+        close_category.addEventListener('click', () => {
             document.querySelector('.catModal').classList.add('hidden')
         })
         /////
