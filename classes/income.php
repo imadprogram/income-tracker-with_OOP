@@ -79,8 +79,19 @@ class Income {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function update(){
+    public function update($id , $user_id , $amount , $description , $date){
+        
+        $sql = "UPDATE income SET amount = :amount, description = :description, date = :date WHERE id = :id AND user_id = :user_id";
 
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':amount', $amount);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':date', $date);
+
+        return $stmt->execute();
     }
 
     public function delete($user_id , $income_id){

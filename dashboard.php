@@ -87,11 +87,11 @@ if (isset($_POST['submit_category'])) {
 
 // DELETE AN INCOME
 
-if(isset($_POST['delete_income'])){
+if (isset($_POST['delete_income'])) {
     $id = $_POST['id'];
 
-    if($income->delete($_SESSION['user_id'], $id)){
-                echo "
+    if ($income->delete($_SESSION['user_id'], $id)) {
+        echo "
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         Toastify({
@@ -106,8 +106,8 @@ if(isset($_POST['delete_income'])){
                         }).showToast();
                 });</script>
         ";
-    }else{
-                echo "
+    } else {
+        echo "
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         Toastify({
@@ -127,10 +127,10 @@ if(isset($_POST['delete_income'])){
 
 // DELETE AN EXPENSE
 
-if(isset($_POST['delete_expense'])){
+if (isset($_POST['delete_expense'])) {
     $id = $_POST['id'];
 
-    if($expense->delete($_SESSION['user_id'], $id)){
+    if ($expense->delete($_SESSION['user_id'], $id)) {
         echo "
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
@@ -146,7 +146,7 @@ if(isset($_POST['delete_expense'])){
                         }).showToast();
                 });</script>
         ";
-    }else{
+    } else {
         echo "
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
@@ -165,6 +165,23 @@ if(isset($_POST['delete_expense'])){
     }
 }
 
+// EDIT AN INCOME
+
+if (isset($_POST['update_transaction'])) {
+    $id = $_POST['id'];
+    $amount = $_POST['amount'];
+    $description = $_POST['description'];
+    $date = $_POST['date'];
+    $type = $_POST['type'];
+
+    if ($type == 'income') {
+        $income->update($id, $_SESSION['user_id'], $amount, $description, $date);
+    } 
+    if ($type == 'expense') {
+        $expense->update($id, $_SESSION['user_id'], $amount, $description, $date);
+    } 
+}
+
 
 ?>
 
@@ -177,56 +194,30 @@ if(isset($_POST['delete_expense'])){
     <title>Smart Wallet</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script src="https://kit.fontawesome.com/559afa4763.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
     </script>
 
     <style type="text/tailwindcss">
-        body { 
-            background: radial-gradient(circle at top left, #f3f4f6, #e5e7eb);
-            min-height: 100vh;
-        }
-
-        /* Glassmorphism */
-        .glass-panel {
-            @apply bg-white/80 backdrop-blur-xl border border-white/60 shadow-sm transition-all duration-300;
-        }
-        .glass-card {
-             @apply glass-panel rounded-2xl p-6 hover:shadow-md;
-        }
-
-        /* Scrollbar */
+        body { background: radial-gradient(circle at top left, #f3f4f6, #e5e7eb); min-height: 100vh; }
+        .glass-panel { @apply bg-white/80 backdrop-blur-xl border border-white/60 shadow-sm transition-all duration-300; }
+        .glass-card { @apply glass-panel rounded-2xl p-6 hover:shadow-md; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { @apply bg-gray-200 rounded-full; }
         .custom-scroll::-webkit-scrollbar-track { @apply bg-transparent; }
-
-        /* Inputs */
-        .form-input {
-            @apply w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 text-sm 
-            focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all font-medium;
-        }
-
-        /* Modal Animation */
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        .form-input { @apply w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all font-medium; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
         .animate-pop { animation: popIn 0.2s ease-out forwards; }
     </style>
 </head>
@@ -243,14 +234,13 @@ if(isset($_POST['delete_expense'])){
             </div>
 
             <div class="flex gap-10">
-                <button onclick="openModal()"
-                    class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2">
+                <button onclick="openModal()" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center gap-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>New Transaction</span>
                 </button>
 
-                <button class='add-category rounded-lg shadow-xl px-4 py-2 bg-gray-400'>
-                    add category
+                <button class='add-category rounded-lg shadow-xl px-4 py-2 bg-gray-400 text-white font-semibold hover:bg-gray-500 transition-colors'>
+                    Add Category
                 </button>
             </div>
         </div>
@@ -287,14 +277,10 @@ if(isset($_POST['delete_expense'])){
                 <div class="glass-card h-full min-h-[300px] flex flex-col items-center justify-center text-center relative overflow-hidden bg-gradient-to-b from-white to-orange-50/50">
                     <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-orange-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-pulse"></div>
                     <div class="absolute bottom-1/4 right-1/4 w-32 h-32 bg-yellow-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-pulse" style="animation-delay: 1s"></div>
-
                     <div class="relative z-10 mb-4 transform hover:scale-110 transition-transform duration-300">
                         <i class="fa-solid fa-cat text-7xl text-orange-500 drop-shadow-lg"></i>
-                        <div class="absolute -top-6 -right-12 bg-white px-3 py-1.5 rounded-xl rounded-bl-none shadow-sm text-xs font-bold text-gray-600 border border-gray-100 animate-bounce">
-                            Save more! 😺
-                        </div>
+                        <div class="absolute -top-6 -right-12 bg-white px-3 py-1.5 rounded-xl rounded-bl-none shadow-sm text-xs font-bold text-gray-600 border border-gray-100 animate-bounce">Save more! 😺</div>
                     </div>
-
                     <div class="relative z-10">
                         <h3 class="text-xl font-bold text-gray-800 mb-1">Wise Saver</h3>
                         <p class="text-sm text-gray-500 px-4">"A penny saved is a penny earned." Keep tracking to stay ahead!</p>
@@ -315,35 +301,17 @@ if(isset($_POST['delete_expense'])){
                 </div>
 
                 <div class="glass-card flex-grow flex flex-col h-[340px] p-0 overflow-hidden">
-
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white/50">
                         <h3 class="font-bold text-emerald-700 text-sm uppercase tracking-wide">Income List</h3>
-
                         <form action="dashboard.php" method="GET" class="flex items-center gap-2">
                             <div class="relative">
                                 <select name="filter_income" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
-                                    <?php
-                                    foreach ($income_categories as $cat) {
-                                        echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
-                                    }
-                                    ?>
-                                    <!-- <option value="all">All Categories</option>
-                                    <option value="food">🍔 Food & Dining</option>
-                                    <option value="shopping">🛍️ Shopping</option>
-                                    <option value="transport">🚗 Transport</option>
-                                    <option value="entertainment">🎬 Entertainment</option>
-                                    <option value="bills">💡 Bills & Utilities</option>
-                                    <option value="salary">💰 Salary</option>
-                                    <option value="freelance">💻 Freelance</option>
-                                    <option value="other">📦 Other</option> -->
-
+                                    <?php foreach ($income_categories as $cat) { echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>"; } ?>
                                 </select>
                                 <i class="fa-solid fa-filter absolute right-2 top-2 text-[10px] text-gray-400 pointer-events-none"></i>
                             </div>
-                            <button type="submit" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
-                                Apply
-                            </button>
+                            <button type="submit" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer">Apply</button>
                         </form>
                     </div>
 
@@ -351,75 +319,43 @@ if(isset($_POST['delete_expense'])){
                         <table class="w-full text-left">
                             <tbody class="text-sm divide-y divide-gray-50">
                                 <?php
-
-                                if (isset($_GET['filter_income'])) {
-                                    if ($_GET['filter_income'] == 'all') {
-                                        goto here;
-                                    }
+                                if (isset($_GET['filter_income']) && $_GET['filter_income'] != 'all') {
                                     $selected = $_GET['filter_income'];
                                     $result = $income->getByCategory($_SESSION['user_id'], $selected);
-                                    if (count($result) > 0) {
-                                        foreach ($result as $row) {
-                                            echo "
+                                } else {
+                                    $result = $income->getAll($_SESSION['user_id']);
+                                }
+
+                                if (count($result) > 0) {
+                                    foreach ($result as $row) {
+                                        echo "
                                         <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                             <td class='py-3 px-3'>
                                                 <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
                                                 <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
                                             </td>
                                             <td class='py-3 px-3 text-right'>
-                                                <span class='font-bold text-emerald-600 block'>- $" . $row['amount'] . "</span>
-
+                                                <span class='font-bold text-emerald-600 block'>+ $" . $row['amount'] . "</span>
                                                 <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
+                                                    
                                                     <form action='dashboard.php' method='POST'>
-                                                        <input type='hidden' name='id' value='".$row['id']."'>
+                                                        <input type='hidden' name='id' value='" . $row['id'] . "'>
                                                         <button name='delete_income' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
                                                             <i class='fa-solid fa-trash text-xs'></i>
                                                         </button>
                                                     </form>
-                                                    <button class='w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all'>
+
+                                                    <button type='button' class='edit_btn w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all' 
+                                                            data-id='" . $row['id'] . "' 
+                                                            data-type='income'>
                                                         <i class='fa-solid fa-pen text-xs'></i>
                                                     </button>
                                                 </div>
                                             </td>
-                                        </tr>
-                                                    ";
-                                        }
-                                    } else {
-                                        echo "<p>there is nothing to show !</p>";
+                                        </tr>";
                                     }
                                 } else {
-                                    here:
-
-                                    $result = $income->getAll($_SESSION['user_id']);
-                                    if (count($result) > 0) {
-                                        foreach ($result as $row) {
-                                            echo "
-                                                    <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
-                                                        <td class='py-3 px-3'>
-                                                            <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
-                                                            <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
-                                                        </td>
-                                                        <td class='py-3 px-3 text-right'>
-                                                            <span class='font-bold text-emerald-600 block'>+ $" . $row['amount'] . "</span>
-
-                                                            <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
-                                                                <form action='dashboard.php' method='POST'>
-                                                                    <input type='hidden' name='id' value='".$row['id']."'>
-                                                                    <button name='delete_income' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-all'>
-                                                                        <i class='fa-solid fa-trash text-xs'></i>
-                                                                    </button>
-                                                                </form>
-                                                                <button class='w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all'>
-                                                                    <i class='fa-solid fa-pen text-xs'></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                        ";
-                                        }
-                                    } else {
-                                        echo "<p class='text-gray-500'>there is nothing to show !</p>";
-                                    }
+                                    echo "<tr><td colspan='2' class='text-gray-500 text-center p-4'>No income found.</td></tr>";
                                 }
                                 ?>
                             </tbody>
@@ -441,34 +377,17 @@ if(isset($_POST['delete_expense'])){
                 </div>
 
                 <div class="glass-card flex-grow flex flex-col h-[340px] p-0 overflow-hidden">
-
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white/50">
                         <h3 class="font-bold text-rose-700 text-sm uppercase tracking-wide">Expense List</h3>
-
                         <form action="dashboard.php" method="GET" class="flex items-center gap-2">
                             <div class="relative">
                                 <select name="filter_expense" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-rose-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
-                                    <?php
-                                    foreach ($expense_categories as $cat) {
-                                        echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
-                                    }
-                                    ?>
-                                    <!-- <option value="food">🍔 Food & Dining</option>
-                                    <option value="shopping">🛍️ Shopping</option>
-                                    <option value="transport">🚗 Transport</option>
-                                    <option value="entertainment">🎬 Entertainment</option>
-                                    <option value="bills">💡 Bills & Utilities</option>
-                                    <option value="salary">💰 Salary</option>
-                                    <option value="freelance">💻 Freelance</option>
-                                    <option value="other">📦 Other</option> -->
-
+                                    <?php foreach ($expense_categories as $cat) { echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>"; } ?>
                                 </select>
                                 <i class="fa-solid fa-filter absolute right-2 top-2 text-[10px] text-gray-400 pointer-events-none"></i>
                             </div>
-                            <button type="submit" class="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
-                                Apply
-                            </button>
+                            <button type="submit" class="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer">Apply</button>
                         </form>
                     </div>
 
@@ -476,15 +395,16 @@ if(isset($_POST['delete_expense'])){
                         <table class="w-full text-left">
                             <tbody class="text-sm divide-y divide-gray-50">
                                 <?php
-                                if (isset($_GET['filter_expense'])) {
-                                    if ($_GET['filter_expense'] == 'all') {
-                                        goto there;
-                                    }
+                                if (isset($_GET['filter_expense']) && $_GET['filter_expense'] != 'all') {
                                     $selected = $_GET['filter_expense'];
                                     $result = $expense->getByCategory($_SESSION['user_id'], $selected);
-                                    if (count($result) > 0) {
-                                        foreach ($result as $row) {
-                                            echo "
+                                } else {
+                                    $result = $expense->getAll($_SESSION['user_id']);
+                                }
+
+                                if (count($result) > 0) {
+                                    foreach ($result as $row) {
+                                        echo "
                                         <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                             <td class='py-3 px-3'>
                                                 <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
@@ -492,59 +412,26 @@ if(isset($_POST['delete_expense'])){
                                             </td>
                                             <td class='py-3 px-3 text-right'>
                                                 <span class='font-bold text-rose-600 block'>- $" . $row['amount'] . "</span>
-
                                                 <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
+                                                    
                                                     <form action='dashboard.php' method='POST'>
-                                                        <input type='hidden' name='id' value='".$row['id']."'>
+                                                        <input type='hidden' name='id' value='" . $row['id'] . "'>
                                                         <button name='delete_expense' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
                                                             <i class='fa-solid fa-trash text-xs'></i>
                                                         </button>
                                                     </form>
-                                                    <button class='w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all'>
+
+                                                    <button type='button' class='edit_btn w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all' 
+                                                            data-id='" . $row['id'] . "' 
+                                                            data-type='expense'>
                                                         <i class='fa-solid fa-pen text-xs'></i>
                                                     </button>
                                                 </div>
                                             </td>
-                                        </tr>
-                                                    ";
-                                        }
-                                    } else {
-                                        echo "<p>there is nothing to show !</p>";
+                                        </tr>";
                                     }
                                 } else {
-                                    there:
-
-                                    $result = $expense->getAll($_SESSION['user_id']);
-
-                                    if (count($result) > 0) {
-                                        foreach ($result as $row) {
-                                            echo "
-                                                <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
-                                                    <td class='py-3 px-3'>
-                                                        <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
-                                                        <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
-                                                    </td>
-                                                    <td class='py-3 px-3 text-right'>
-                                                        <span class='font-bold text-rose-600 block'>- $" . $row['amount'] . "</span>
-
-                                                        <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
-                                                            <form action='dashboard.php' method='POST'>
-                                                                <input type='hidden' name='id' value='".$row['id']."'>
-                                                                <button name='delete_expense' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
-                                                                    <i class='fa-solid fa-trash text-xs'></i>
-                                                                </button>
-                                                            </form>
-                                                            <button class='w-7 h-7 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all'>
-                                                                <i class='fa-solid fa-pen text-xs'></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                    ";
-                                        }
-                                    } else {
-                                        echo "<p class='text-gray-500'>there is nothing to show !</p>";
-                                    }
+                                    echo "<tr><td colspan='2' class='text-gray-500 text-center p-4'>No expenses found.</td></tr>";
                                 }
                                 ?>
                             </tbody>
@@ -552,7 +439,6 @@ if(isset($_POST['delete_expense'])){
                     </div>
                 </div>
             </div>
-
         </div>
 
         <section class="glass-card mt-6">
@@ -592,19 +478,7 @@ if(isset($_POST['delete_expense'])){
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Category</label>
                 <div class="relative">
                     <select name="category" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
-                        <?php
-                        foreach ($categories as $cat) {
-                            echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
-                        }
-                        ?>
-                        <!-- <option value="food">🍔 Food & Dining</option>
-                        <option value="shopping">🛍️ Shopping</option>
-                        <option value="transport">🚗 Transport</option>
-                        <option value="entertainment">🎬 Entertainment</option>
-                        <option value="bills">💡 Bills & Utilities</option>
-                        <option value="salary">💰 Salary</option>
-                        <option value="freelance">💻 Freelance</option>
-                        <option value="other">📦 Other</option> -->
+                        <?php foreach ($categories as $cat) { echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>"; } ?>
                     </select>
                     <div class="absolute right-4 top-3.5 pointer-events-none text-gray-500"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                 </div>
@@ -626,7 +500,7 @@ if(isset($_POST['delete_expense'])){
         </form>
     </div>
 
-    <div class="catModal   fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
+    <div class="catModal fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
         <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="dashboard.php">
             <button type="button" id="close_it" class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -654,126 +528,51 @@ if(isset($_POST['delete_expense'])){
                 </div>
             </div>
 
-
             <button type="submit" name="submit_category" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer">
                 <span>Add Category</span><i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
         </form>
     </div>
 
+    <div id="edit" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 px-4">
+        <form class="glass-panel animate-pop bg-white w-full max-w-md rounded-3xl p-8 relative shadow-2xl" method="post" action="dashboard.php">
+            <button type="button" onclick="closeEditModal()" class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Edit Transaction</h2>
+                <p class="text-gray-500 text-sm mt-1">Update details below.</p>
+            </div>
+
+            <input type="hidden" name="id" id="edit_id">
+            <input type="hidden" name="type" id="edit_type">
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">New Amount</label>
+                <div class="relative">
+                    <input type="number" name="amount" id="edit_amount" step="0.01" class="form-input pl-8 font-bold text-lg text-gray-800" required>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">New Description</label>
+                <input type="text" name="description" id="edit_desc" class="form-input" required>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Date</label>
+                <input type="date" name="date" class="form-input text-gray-600">
+            </div>
+
+            <button type="submit" name="update_transaction" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer">
+                <span>Save Changes</span><i class="fa-solid fa-check text-xs"></i>
+            </button>
+        </form>
+    </div>
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script>
-        const modal = document.getElementById('modal');
-        const typeSelect = document.getElementById('type');
-        const title = document.getElementById('modalTitle');
-        const sub = document.getElementById('modalSub');
-        const btn = document.getElementById('submitBtn');
-        const btnText = btn.querySelector('span');
-
-        //////
-        const category_btn = document.querySelector('.add-category');
-        const close_category = document.querySelector('#close_it');
-
-        category_btn.addEventListener('click', () => {
-            document.querySelector('.catModal').classList.remove('hidden')
-        })
-        close_category.addEventListener('click', () => {
-            document.querySelector('.catModal').classList.add('hidden')
-        })
-        /////
-
-        function openModal() {
-            modal.classList.remove('hidden');
-            const dateInput = document.querySelector('input[type="date"]');
-            if (!dateInput.value) dateInput.valueAsDate = new Date();
-        }
-
-        function closeModal() {
-            modal.classList.add('hidden');
-        }
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        function switchType() {
-            const isIncome = typeSelect.value === 'income';
-            title.innerText = isIncome ? 'Add Income' : 'Add Expense';
-            sub.innerText = isIncome ? 'Track your earnings.' : 'Track your spending.';
-            btnText.innerText = isIncome ? 'Add Income' : 'Add Expense';
-            title.className = `text-2xl font-bold ${isIncome ? 'text-blue-600' : 'text-rose-600'}`;
-            btn.className = `w-full font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2 cursor-pointer text-white ${isIncome ? 'bg-blue-600 hover:bg-blue-700' : 'bg-rose-600 hover:bg-rose-700'}`;
-        }
-
-        // Chart Config
-        const ctx = document.getElementById('chart').getContext('2d');
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
-        gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Balance',
-                    data: [12000, 19000, 15000, 22000, 18000, 24847],
-                    borderColor: '#2563eb',
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#2563eb',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Inter'
-                            },
-                            color: '#9ca3af'
-                        }
-                    },
-                    y: {
-                        grid: {
-                            borderDash: [4, 4],
-                            color: '#e5e7eb'
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Inter'
-                            },
-                            color: '#9ca3af',
-                            callback: (value) => '$' + value / 1000 + 'k'
-                        },
-                        beginAtZero: true
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
