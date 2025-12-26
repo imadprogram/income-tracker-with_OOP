@@ -13,7 +13,7 @@ class Income {
     }
 
     public function create($user_id , $amount , $description , $date , $category_id){
-        $sql = "INSERT INTO income(user_id , amount , description , date , category) VALUES(:user_id , :amount , :description , :date , :category_id)";
+        $sql = "INSERT INTO income(user_id , amount , description , date , category_id) VALUES(:user_id , :amount , :description , :date , :category_id)";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -21,14 +21,18 @@ class Income {
         $stmt->bindParam('amount', $amount);
         $stmt->bindParam('description', $description);
         $stmt->bindParam('date', $date);
-        $stmt->bindParam('category', $category_id);
+        $stmt->bindParam('category_id', $category_id);
         $stmt->execute();
 
         return true;
     }
 
     public function getAll($user_id){
-        $sql = "SELECT * FROM income WHERE user_id = :user_id";
+        $sql = "SELECT income.* , categories.name as category_name
+                FROM income 
+                LEFT JOIN categories ON income.category_id = categories.id
+                WHERE income.user_id = :user_id
+                ORDER BY date DESC";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -60,7 +64,11 @@ class Income {
     }
 
     public function getByCategory($user_id , $category) {
-        $sql = "SELECT * FROM income WHERE user_id = :user_id AND category = :category";
+        $sql = "SELECT income.* , category.name as category_name
+                FROM income 
+                LEFT JOIN category ON income.category_id = category.id
+                WHERE income.user_id = :user_id AND income.category_id = :category
+                ORDER BY date DESC";
 
         $stmt = $this->conn->prepare($sql);
 

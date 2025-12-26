@@ -76,43 +76,44 @@ $categories = $all_categories->getAllCategories('all');
 
 
 
+
 // }
 
-// update infos of income
-if (!empty($_POST['income-new-submit'])) {
-    $amount = $_POST['income-new-amount'];
-    $description = $_POST['income-new-description'];
-    $date = $_POST['income-new-date'];
-    $id = $_POST['id'];
-    $sql = "UPDATE income SET amount = $amount WHERE id = $id";
+// // update infos of income
+// if (!empty($_POST['income-new-submit'])) {
+//     $amount = $_POST['income-new-amount'];
+//     $description = $_POST['income-new-description'];
+//     $date = $_POST['income-new-date'];
+//     $id = $_POST['id'];
+//     $sql = "UPDATE income SET amount = $amount WHERE id = $id";
 
-    mysqli_query($connect, $sql);
-}
-// update infos of expense
-if (!empty($_POST['expense-new-submit'])) {
-    $amount = $_POST['expense-new-amount'];
-    $description = $_POST['expense-new-description'];
-    $date = $_POST['expense-new-date'];
-    $id = $_POST['id'];
-    $sql = "UPDATE expense SET amount = $amount WHERE id = $id";
+//     mysqli_query($connect, $sql);
+// }
+// // update infos of expense
+// if (!empty($_POST['expense-new-submit'])) {
+//     $amount = $_POST['expense-new-amount'];
+//     $description = $_POST['expense-new-description'];
+//     $date = $_POST['expense-new-date'];
+//     $id = $_POST['id'];
+//     $sql = "UPDATE expense SET amount = $amount WHERE id = $id";
 
-    mysqli_query($connect, $sql);
-}
+//     mysqli_query($connect, $sql);
+// }
 
-// delete infos of income
-if (!empty($_POST['income-delete'])) {
-    $id = $_POST['id'];
-    $sql = "DELETE FROM income WHERE id = $id";
+// // delete infos of income
+// if (!empty($_POST['income-delete'])) {
+//     $id = $_POST['id'];
+//     $sql = "DELETE FROM income WHERE id = $id";
 
-    mysqli_query($connect, $sql);
-}
-// delete infos of expense
-if (!empty($_POST['expense-delete'])) {
-    $id = $_POST['id'];
-    $sql = "DELETE FROM expense WHERE id = $id";
+//     mysqli_query($connect, $sql);
+// }
+// // delete infos of expense
+// if (!empty($_POST['expense-delete'])) {
+//     $id = $_POST['id'];
+//     $sql = "DELETE FROM expense WHERE id = $id";
 
-    mysqli_query($connect, $sql);
-}
+//     mysqli_query($connect, $sql);
+// }
 
 ?>
 <!DOCTYPE html>
@@ -304,7 +305,7 @@ if (!empty($_POST['expense-delete'])) {
                                             echo "
                                         <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                             <td class='py-3 px-3'>
-                                                <div class='font-semibold text-gray-700'>" . $row['category'] . "</div>
+                                                <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
                                                 <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
                                             </td>
                                             <td class='py-3 px-3 text-right'>
@@ -337,7 +338,7 @@ if (!empty($_POST['expense-delete'])) {
                                             echo "
                                                     <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                                         <td class='py-3 px-3'>
-                                                            <div class='font-semibold text-gray-700'>" . $row['category'] . "</div>
+                                                            <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
                                                             <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
                                                         </td>
                                                         <td class='py-3 px-3 text-right'>
@@ -428,7 +429,7 @@ if (!empty($_POST['expense-delete'])) {
                                             echo "
                                         <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                             <td class='py-3 px-3'>
-                                                <div class='font-semibold text-gray-700'>" . $row['category'] . "</div>
+                                                <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
                                                 <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
                                             </td>
                                             <td class='py-3 px-3 text-right'>
@@ -462,7 +463,7 @@ if (!empty($_POST['expense-delete'])) {
                                             echo "
                                                 <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
                                                     <td class='py-3 px-3'>
-                                                        <div class='font-semibold text-gray-700'>" . $row['category'] . "</div>
+                                                        <div class='font-semibold text-gray-700'>" . $row['category_name'] . "</div>
                                                         <div class='text-[10px] text-gray-400'>" . $row['date'] . "</div>
                                                     </td>
                                                     <td class='py-3 px-3 text-right'>

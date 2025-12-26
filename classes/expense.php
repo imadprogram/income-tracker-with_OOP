@@ -30,7 +30,11 @@ class Expense
     }
 
     public function getAll($user_id) {
-        $sql = "SELECT * FROM expense WHERE user_id = :user_id";
+        $sql = "SELECT expense.* , category.name as category_name
+                FROM expense 
+                LEFT JOIN category ON expense.category_id = category.id
+                WHERE expense.user_id = :user_id
+                ORDER BY date DESC";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -62,7 +66,11 @@ class Expense
     }
 
     public function getByCategory($user_id , $category) {
-        $sql = "SELECT * FROM expense WHERE user_id = :user_id AND category = :category";
+        $sql = "SELECT expense.* , category.name as category_name
+                FROM expense 
+                LEFT JOIN category ON expense.category_id = category.id
+                WHERE expense.user_id = :user_id AND expense.category_id = :category
+                ORDER BY date DESC";
 
         $stmt = $this->conn->prepare($sql);
 

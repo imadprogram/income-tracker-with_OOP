@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-require_once 'connect.php';
-require_once 'user.php';
+require_once 'classes/connect.php';
+require_once 'classes/user.php';
 
 $database = new Database();
 $db = $database->connect();
