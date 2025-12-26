@@ -28,9 +28,9 @@ class Income {
     }
 
     public function getAll($user_id){
-        $sql = "SELECT income.* , categories.name as category_name
+        $sql = "SELECT income.* , category.name as category_name
                 FROM income 
-                LEFT JOIN categories ON income.category_id = categories.id
+                LEFT JOIN category ON income.category_id = category.id
                 WHERE income.user_id = :user_id
                 ORDER BY date DESC";
 

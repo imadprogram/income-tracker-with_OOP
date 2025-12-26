@@ -6,6 +6,10 @@ class Category {
         $this->conn = $db;
     }
 
+    public function create($name , $type){
+        
+    }
+
     public function getAllCategories($type){
         if($type == 'all'){
             $sql = "SELECT * FROM category";
