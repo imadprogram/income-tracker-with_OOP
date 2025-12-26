@@ -34,7 +34,7 @@ if (isset($_POST['submit_transaction'])) {
                             gravity: 'top', // `top` or `bottom`
                             position: 'center', // `left`, `center` or `right`
                             style: {
-                                background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
                                 borderRadius: '10px',
                             }
                         }).showToast();
@@ -58,7 +58,7 @@ if (isset($_POST['submit_transaction'])) {
                             gravity: 'top', // `top` or `bottom`
                             position: 'center', // `left`, `center` or `right`
                             style: {
-                                background: 'linear-gradient(to right, #00b09b, #96c93d)',
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
                                 borderRadius: '10px',
                             }
                         }).showToast();
@@ -69,7 +69,7 @@ if (isset($_POST['submit_transaction'])) {
 
 $all_categories = new Category($db);
 
-
+// GET ALL CATEGORIES 
 $income_categories = $all_categories->getAllCategories('income');
 $expense_categories = $all_categories->getAllCategories('expense');
 $categories = $all_categories->getAllCategories('all');
@@ -91,9 +91,77 @@ if(isset($_POST['delete_income'])){
     $id = $_POST['id'];
 
     if($income->delete($_SESSION['user_id'], $id)){
-        echo "deleted income";
+                echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'Deleted Successfully',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                });</script>
+        ";
     }else{
-        echo "not deleted income";
+                echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'not Deleted Successfully',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                });</script>
+        ";
+    }
+}
+
+// DELETE AN EXPENSE
+
+if(isset($_POST['delete_expense'])){
+    $id = $_POST['id'];
+
+    if($expense->delete($_SESSION['user_id'], $id)){
+        echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'Deleted Successfully',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                });</script>
+        ";
+    }else{
+        echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Toastify({
+                            text: 'not Deleted Successfully',
+                            duration: 3000,
+                            gravity: 'top', // `top` or `bottom`
+                            position: 'center', // `left`, `center` or `right`
+                            style: {
+                                background: 'linear-gradient(to right, #2563eb, #60a5fa)',
+                                borderRadius: '10px',
+                            }
+                        }).showToast();
+                });</script>
+        ";
     }
 }
 

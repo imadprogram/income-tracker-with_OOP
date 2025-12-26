@@ -85,7 +85,15 @@ class Expense
 
     }
 
-    public function delete() {
+    public function delete($user_id , $expense_id) {
+        $sql = "DELETE FROM expense WHERE user_id = :user_id AND id = :expense_id";
 
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('expense_id', $expense_id);
+        $stmt->execute();
+
+        return true;
     }
 }
