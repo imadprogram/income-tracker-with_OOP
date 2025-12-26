@@ -90,7 +90,11 @@ if (isset($_POST['submit_category'])) {
 if(isset($_POST['delete_income'])){
     $id = $_POST['id'];
 
-    $income->delete($_SESSION['user_id'], $id);
+    if($income->delete($_SESSION['user_id'], $id)){
+        echo "deleted income";
+    }else{
+        echo "not deleted income";
+    }
 }
 
 
@@ -331,9 +335,9 @@ if(isset($_POST['delete_income'])){
                                                             <span class='font-bold text-emerald-600 block'>+ $" . $row['amount'] . "</span>
 
                                                             <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
-                                                                <form action='delete_expense.php' method='POST' onsubmit='return confirm('Delete this expense?');'>
-                                                                    <input type='hidden' name='id' value='1'>
-                                                                    <button type='submit' class='w-7 h-7 rounded-md bg-red-50 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-all'>
+                                                                <form action='dashboard.php' method='POST'>
+                                                                    <input type='hidden' name='id' value='".$row['id']."'>
+                                                                    <button name='delete_income' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-all'>
                                                                         <i class='fa-solid fa-trash text-xs'></i>
                                                                     </button>
                                                                 </form>
@@ -422,9 +426,9 @@ if(isset($_POST['delete_income'])){
                                                 <span class='font-bold text-rose-600 block'>- $" . $row['amount'] . "</span>
 
                                                 <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
-                                                    <form action='delete_expense.php' method='POST' onsubmit='return confirm('Delete this expense?');'>
-                                                        <input type='hidden' name='id' value='1'>
-                                                        <button type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
+                                                    <form action='dashboard.php' method='POST'>
+                                                        <input type='hidden' name='id' value='".$row['id']."'>
+                                                        <button name='delete_expense' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
                                                             <i class='fa-solid fa-trash text-xs'></i>
                                                         </button>
                                                     </form>
@@ -456,9 +460,9 @@ if(isset($_POST['delete_income'])){
                                                         <span class='font-bold text-rose-600 block'>- $" . $row['amount'] . "</span>
 
                                                         <div class='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 shadow-sm p-1 rounded-lg backdrop-blur-sm'>
-                                                            <form action='delete_expense.php' method='POST' onsubmit='return confirm('Delete this expense?');'>
-                                                                <input type='hidden' name='id' value='1'>
-                                                                <button type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
+                                                            <form action='dashboard.php' method='POST'>
+                                                                <input type='hidden' name='".$row['id']."' value='1'>
+                                                                <button name='delete_expense' type='submit' class='w-7 h-7 rounded-md bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all'>
                                                                     <i class='fa-solid fa-trash text-xs'></i>
                                                                 </button>
                                                             </form>
