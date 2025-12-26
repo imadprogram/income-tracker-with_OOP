@@ -51,3 +51,22 @@ ALTER TABLE expense ADD COLUMN category_id INT
 ALTER TABLE expense ADD FOREIGN KEY (category_id) REFERENCES category(id)
 
 SELECT * FROM category
+
+SELECT * FROM income
+
+INSERT INTO income(amount , description , date , user_id , category_id) VALUES(23 ,'test', '23/02/2025', 1 , 2)
+
+INSERT INTO category(name , type) VALUES('Salary', 'income'), 
+('Freelance', 'income'), 
+('Business', 'income'),
+('Food', 'expense'), 
+('Transport', 'expense'), 
+('Shopping', 'expense'), 
+('Entertainment', 'expense'), 
+('Bills', 'expense'), 
+('Other', 'expense');
+
+SELECT income.*, category.name as category_name 
+            FROM income 
+            JOIN category ON income.category_id = category.id 
+            WHERE income.user_id = 1 AND income.category_id = 2

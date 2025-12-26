@@ -1,7 +1,8 @@
 <?php
-require "connect.php";
-require_once 'income.php';
-require_once 'expense.php';
+require "classes/connect.php";
+require_once 'classes/income.php';
+require_once 'classes/expense.php';
+require_once 'classes/category.php';
 
 session_start();
 
@@ -12,6 +13,7 @@ $db = $database->connect();
 
 $income = new Income($db);
 $expense = new Expense($db);
+
 
 if (isset($_POST['submit_transaction'])) {
     if ($_POST['type'] == 'income') {
@@ -65,7 +67,12 @@ if (isset($_POST['submit_transaction'])) {
     }
 }
 
+$all_categories = new Category($db);
 
+
+$income_categories = $all_categories->getAllCategories('income');
+$expense_categories = $all_categories->getAllCategories('expense');
+$categories = $all_categories->getAllCategories('all');
 
 
 
@@ -257,6 +264,12 @@ if (!empty($_POST['expense-delete'])) {
                             <div class="relative">
                                 <select name="filter_income" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
+                                    <?php
+                                    foreach ($income_categories as $cat) {
+                                        echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
+                                    }
+                                    ?>
+                                    <!-- <option value="all">All Categories</option>
                                     <option value="food">🍔 Food & Dining</option>
                                     <option value="shopping">🛍️ Shopping</option>
                                     <option value="transport">🚗 Transport</option>
@@ -264,7 +277,7 @@ if (!empty($_POST['expense-delete'])) {
                                     <option value="bills">💡 Bills & Utilities</option>
                                     <option value="salary">💰 Salary</option>
                                     <option value="freelance">💻 Freelance</option>
-                                    <option value="other">📦 Other</option>
+                                    <option value="other">📦 Other</option> -->
 
                                 </select>
                                 <i class="fa-solid fa-filter absolute right-2 top-2 text-[10px] text-gray-400 pointer-events-none"></i>
@@ -345,7 +358,7 @@ if (!empty($_POST['expense-delete'])) {
                                                     </tr>
                                                         ";
                                         }
-                                    }else{
+                                    } else {
                                         echo "<p class='text-gray-500'>there is nothing to show !</p>";
                                     }
                                 }
@@ -377,14 +390,19 @@ if (!empty($_POST['expense-delete'])) {
                             <div class="relative">
                                 <select name="filter_expense" class="bg-white border border-gray-200 text-gray-600 text-xs rounded-lg pl-2 pr-6 py-1.5 focus:ring-1 focus:ring-rose-500 outline-none appearance-none cursor-pointer">
                                     <option value="all">All Categories</option>
-                                    <option value="food">🍔 Food & Dining</option>
+                                    <?php
+                                        foreach ($expense_categories as $cat) {
+                                            echo "<option value=" . $cat['id'] . ">" . $cat['name'] . "</option>";
+                                        }
+                                    ?>
+                                    <!-- <option value="food">🍔 Food & Dining</option>
                                     <option value="shopping">🛍️ Shopping</option>
                                     <option value="transport">🚗 Transport</option>
                                     <option value="entertainment">🎬 Entertainment</option>
                                     <option value="bills">💡 Bills & Utilities</option>
                                     <option value="salary">💰 Salary</option>
                                     <option value="freelance">💻 Freelance</option>
-                                    <option value="other">📦 Other</option>
+                                    <option value="other">📦 Other</option> -->
 
                                 </select>
                                 <i class="fa-solid fa-filter absolute right-2 top-2 text-[10px] text-gray-400 pointer-events-none"></i>
@@ -438,8 +456,8 @@ if (!empty($_POST['expense-delete'])) {
                                     there:
 
                                     $result = $expense->getAll($_SESSION['user_id']);
-                                    
-                                    if(count($result) > 0){
+
+                                    if (count($result) > 0) {
                                         foreach ($result as $row) {
                                             echo "
                                                 <tr class='group hover:bg-rose-50/30 transition-colors relative rounded-lg'>
@@ -465,7 +483,7 @@ if (!empty($_POST['expense-delete'])) {
                                                 </tr>
                                                     ";
                                         }
-                                    }else{
+                                    } else {
                                         echo "<p class='text-gray-500'>there is nothing to show !</p>";
                                     }
                                 }
@@ -515,14 +533,19 @@ if (!empty($_POST['expense-delete'])) {
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Category</label>
                 <div class="relative">
                     <select name="category" class="form-input appearance-none cursor-pointer font-bold text-gray-700">
-                        <option value="food">🍔 Food & Dining</option>
+                        <?php
+                            foreach($categories as $cat){
+                                echo "<option value=".$cat['id'].">".$cat['name']."</option>";
+                            }
+                        ?>
+                        <!-- <option value="food">🍔 Food & Dining</option>
                         <option value="shopping">🛍️ Shopping</option>
                         <option value="transport">🚗 Transport</option>
                         <option value="entertainment">🎬 Entertainment</option>
                         <option value="bills">💡 Bills & Utilities</option>
                         <option value="salary">💰 Salary</option>
                         <option value="freelance">💻 Freelance</option>
-                        <option value="other">📦 Other</option>
+                        <option value="other">📦 Other</option> -->
                     </select>
                     <div class="absolute right-4 top-3.5 pointer-events-none text-gray-500"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                 </div>
