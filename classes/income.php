@@ -83,8 +83,16 @@ class Income {
 
     }
 
-    public function delete(){
+    public function delete($user_id , $income_id){
+        $sql = "DELETE FROM income WHERE user_id = :user_id AND id = :income_id";
 
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam('user_id', $user_id);
+        $stmt->bindParam('income_id', $income_id);
+        $stmt->execute();
+
+        return true;
     }
 }
 ?>

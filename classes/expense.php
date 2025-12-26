@@ -14,8 +14,8 @@ class Expense
         $this->conn = $db;
     }
 
-    public function create($user_id, $amount, $description, $date, $category){
-        $sql = "INSERT INTO expense(user_id , amount , description , date , category) VALUES(:user_id , :amount , :description , :date , :category)";
+    public function create($user_id, $amount, $description, $date, $category_id){
+        $sql = "INSERT INTO expense(user_id , amount , description , date , category_id) VALUES(:user_id , :amount , :description , :date , :category_id)";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -23,7 +23,7 @@ class Expense
         $stmt->bindParam('amount', $amount);
         $stmt->bindParam('description', $description);
         $stmt->bindParam('date', $date);
-        $stmt->bindParam('category', $category);
+        $stmt->bindParam('category_id', $category_id);
         $stmt->execute();
 
         return true;
